@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Панель ProTender</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: fixed left menu + one working column; on phones the menu becomes a drawer. White, quiet, one blue accent. */
+:root{
+  --bg:#FFFFFF; --surface:#F6F7F9; --surface-2:#EEF0F4; --line:#E3E6EC; --line-strong:#CDD2DB;
+  --ink:#151A23; --muted:#5D6573; --faint:#8A919D;
+  --accent:#2B4FB5; --accent-ink:#FFFFFF; --accent-soft:#EDF1FB;
+  --ok:#1F7A45; --ok-soft:#E7F3EC; --warn:#9A5800; --warn-soft:#FBF0DF; --danger:#B3261E; --danger-soft:#FBEAE8;
+  --screen:#1E2430; --screen-2:#2A3140;
+  --font:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --r:10px; --r-sm:7px;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+/* shell */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100%}
+.side{border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bg)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:14px}
+.brand b{font-size:17px;letter-spacing:-.01em}
+.demo{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);border-radius:99px;padding:2px 8px;margin-left:auto}
+.company{display:flex;align-items:center;gap:10px;padding:10px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);width:100%;text-align:left}
+.company small{display:block;color:var(--muted);font-size:12px}
+.company .chev{margin-left:auto;color:var(--faint)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--r-sm);color:var(--ink);text-decoration:none;font-weight:500}
+.nav a:hover{background:var(--surface)}
+.nav a.on{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nav .badge{margin-left:auto}
+.nav-sep{height:1px;background:var(--line);margin:8px 6px}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.limit{padding:10px;border-radius:var(--r);background:var(--surface);font-size:13px}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.me{display:flex;align-items:center;gap:10px;padding:4px 8px;font-size:13px}
+.av{width:30px;height:30px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--muted);flex:none}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding-block:12px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top h1{font-size:19px;font-weight:600;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top .crumb{color:var(--muted);text-decoration:none;font-weight:500}
+.top .sp{margin-left:auto}
+.menu-btn{display:none;border:1px solid var(--line);background:var(--bg);border-radius:var(--r-sm);padding:6px 10px}
+.stop{border:1px solid var(--danger);color:var(--danger);background:var(--bg);border-radius:var(--r-sm);padding:7px 12px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.stop:hover{background:var(--danger-soft)}
+.stop i{width:8px;height:8px;border-radius:2px;background:var(--danger)}
+.content{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px;max-width:1180px;width:100%}
+
+/* parts */
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:600;display:inline-grid;place-items:center}
+.badge.grey{background:var(--surface-2);color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:500;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.danger{background:var(--danger-soft);color:var(--danger)} .pill.acc{background:var(--accent-soft);color:var(--accent)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.btn{border:1px solid var(--line-strong);background:var(--bg);border-radius:var(--r-sm);padding:8px 14px;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--surface)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.btn.danger{color:var(--danger);border-color:var(--line-strong)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sec-h{display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.sec-h h2{font-size:16px;font-weight:600}
+.sec-h a{color:var(--accent);text-decoration:none;font-size:14px;font-weight:500}
+.muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:13px}
+.box{border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.list > *{border-top:1px solid var(--line)} .list > *:first-child{border-top:0}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{padding:14px 16px;border-radius:var(--r);background:var(--surface)}
+.kpi span{display:block;color:var(--muted);font-size:13px}
+.kpi b{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+.kpi small{color:var(--muted);font-size:12.5px}
+.kpi.hl{background:var(--accent-soft)} .kpi.hl b{color:var(--accent)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:22px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+/* decision card */
+.dec{padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center}
+.dec .t{font-weight:600}
+.dec .meta{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px}
+.dec .acts{grid-row:span 2;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dec.gone{opacity:0;transform:translateX(12px);transition:.25s}
+
+/* deadline */
+.dl{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:11px 14px;align-items:center}
+.dl .d{font-weight:600;font-size:13px;line-height:1.25}
+.dl .d small{display:block;font-weight:400;color:var(--muted)}
+.dl.urgent .d{color:var(--danger)}
+
+/* robots mini */
+.rb{display:flex;gap:12px;padding:11px 14px;align-items:center}
+.rb-ic{width:32px;height:32px;border-radius:8px;background:var(--surface);display:grid;place-items:center;flex:none;font-size:13px;font-weight:600;color:var(--muted)}
+.rb-ic.on{background:var(--ok-soft);color:var(--ok)}
+.rb .tx{min-width:0;flex:1}
+.rb .tx b{font-weight:600;font-size:14px}
+.rb .tx div{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* tenders */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:5px 12px;font-size:13.5px;font-weight:500;display:flex;gap:6px;align-items:center}
+.chip span{color:var(--faint);font-weight:500}
+.chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)} .chip.on span{color:var(--accent)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:200px;border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:8px 12px;background:var(--bg)}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:12.5px;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer} tbody tr.click:hover td{background:var(--surface)}
+td .t{font-weight:500;display:block;min-width:240px}
+td .s{color:var(--muted);font-size:12.5px}
+.r{text-align:right}
+
+/* tender detail */
+.thead{display:flex;flex-direction:column;gap:12px}
+.thead h2{font-size:22px;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.facts div{background:var(--bg);padding:11px 14px}
+.facts span{display:block;font-size:12.5px;color:var(--muted)}
+.facts b{font-weight:600}
+.reco{border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.reco.yes{background:var(--ok-soft)} .reco.no{background:var(--danger-soft)}
+.reco .v{display:flex;gap:10px;align-items:center;font-weight:600;font-size:16px}
+.reco.yes .v{color:var(--ok)} .reco.no .v{color:var(--danger)}
+.reco p{margin:0;max-width:70ch}
+.reco .by{font-size:12.5px;color:var(--muted)}
+.decide{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;align-items:center;border:1px solid var(--line);border-radius:var(--r)}
+.decide .q{font-weight:600;margin-right:auto}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 12px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.req{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 12px;padding:12px 14px;align-items:start}
+.req .n{color:var(--faint);font-size:13px;padding-top:1px}
+.req .ref{font-size:12.5px;color:var(--accent);text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+.req .note{font-size:13px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0}
+.kv > div{padding:11px 14px;border-top:1px solid var(--line)}
+.kv > div:nth-child(-n+2){border-top:0}
+.kv .r{font-weight:600}
+.kv .tot{background:var(--surface)}
+.doc{display:flex;align-items:center;gap:12px;padding:11px 14px}
+.doc .ic{width:32px;height:40px;border:1px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:600;color:var(--muted);flex:none}
+.doc .tx{flex:1;min-width:0}
+.hist{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:10px 14px;font-size:14px}
+.hist .when{color:var(--muted);font-size:13px}
+
+/* computer */
+.screen-wrap{display:flex;flex-direction:column;gap:12px}
+.screen-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:var(--r-sm);background:var(--ok-soft);color:var(--ok);font-weight:500;font-size:14px;min-width:0}
+.status .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none;box-shadow:0 0 0 0 rgba(31,122,69,.5);animation:p 1.8s infinite}
+@keyframes p{70%{box-shadow:0 0 0 8px rgba(31,122,69,0)}100%{box-shadow:0 0 0 0 rgba(31,122,69,0)}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}.cursor{transition:none}}
+.screen{background:var(--screen);border-radius:var(--r);padding:12px;aspect-ratio:16/9.4;max-width:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:8px}
+.win{flex:1;background:#fff;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:0;color:#1d2330}
+.win-top{background:#E9ECF1;display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px}
+.win-top .tab{background:#fff;border-radius:6px 6px 0 0;padding:4px 10px;max-width:60%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.win-url{background:#fff;border-bottom:1px solid #E3E6EC;padding:5px 10px;font-size:12px;color:#5D6573;display:flex;gap:8px;align-items:center}
+.lock{width:9px;height:9px;border:1.5px solid #1F7A45;border-radius:2px}
+.win-body{flex:1;display:grid;grid-template-columns:190px 1fr;min-height:0}
+.wb-side{background:#F4F6F9;border-right:1px solid #E3E6EC;padding:12px 10px;font-size:11.5px;display:flex;flex-direction:column;gap:6px;color:#5D6573}
+.wb-side b{color:#1d2330;font-size:12px}
+.wb-side .o{padding:5px 7px;border-radius:5px}
+.wb-side .o.on{background:#DDE5F7;color:#22408F;font-weight:600}
+.wb-main{padding:14px 18px;display:flex;flex-direction:column;gap:9px;font-size:12px;overflow:hidden}
+.wb-main h4{margin:0;font-size:14px}
+.fld{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
+.fld label{color:#5D6573}
+.fld .in{border:1px solid #CDD2DB;border-radius:4px;padding:5px 8px;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fld .in.fill{border-color:#2B4FB5;background:#F3F6FD}
+.file{display:flex;gap:8px;align-items:center;border:1px dashed #CDD2DB;border-radius:4px;padding:5px 8px}
+.file i{font-style:normal;color:#1F7A45;font-weight:600}
+.sign{align-self:flex-start;background:#2B4FB5;color:#fff;border-radius:4px;padding:6px 14px;font-weight:600;margin-top:4px}
+.cursor{position:absolute;width:16px;height:16px;left:62%;top:78%;transition:left 1.2s,top 1.2s;pointer-events:none}
+.task{display:flex;gap:6px;align-items:center;padding:0 2px;color:#C9CED8;font-size:11.5px}
+.task .tb{background:var(--screen-2);border-radius:4px;padding:3px 8px}
+.task .tb.on{background:#3B4558;color:#fff}
+.task .clock{margin-left:auto}
+.approve-strip{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-radius:var(--r);background:var(--warn-soft)}
+.approve-strip .tx{flex:1;min-width:220px}
+.approve-strip b{display:block}
+.log{font-size:13.5px}
+.log .hist{grid-template-columns:62px minmax(0,1fr)}
+
+/* robots */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.rcard{border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--bg)}
+.rcard:hover{border-color:var(--line-strong);background:var(--surface)}
+.rcard .h{display:flex;gap:10px;align-items:center}
+.rcard .h b{font-size:15px}
+.rcard .now{font-size:13.5px;color:var(--muted);min-height:40px}
+.rcard .f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted)}
+.lvl{display:inline-flex;gap:2px}
+.lvl i{width:12px;height:6px;border-radius:2px;background:var(--surface-2)}
+.lvl i.on{background:var(--accent)}
+
+/* forms */
+.form{display:flex;flex-direction:column}
+.fr{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:8px 24px;padding:14px 16px;border-top:1px solid var(--line);align-items:center}
+.fr:first-child{border-top:0}
+.fr > label,.fr > .lb{font-weight:500}
+.fr .lb small,.fr > label small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.inp,.sel,textarea{border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:8px 11px;background:var(--bg);width:100%;max-width:420px}
+textarea{max-width:none;min-height:150px;font-size:13.5px;line-height:1.55;resize:vertical}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inline .inp{max-width:180px}
+.sw{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.sw i{width:38px;height:22px;border-radius:99px;background:var(--line-strong);position:relative;transition:.2s;flex:none}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked + i{background:var(--accent)}
+.sw input:checked + i::after{left:19px}
+.sw input:focus-visible + i{outline:2px solid var(--accent);outline-offset:2px}
+.tagset{display:flex;gap:6px;flex-wrap:wrap}
+.tag{background:var(--surface-2);border-radius:var(--r-sm);padding:3px 9px;font-size:13px}
+.tag.add{background:none;border:1px dashed var(--line-strong);color:var(--muted)}
+.subnav{display:flex;gap:4px;flex-wrap:wrap}
+.subnav a{padding:7px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--muted);font-weight:500;font-size:14px}
+.subnav a.on{background:var(--surface);color:var(--ink)}
+.lockcell{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.lockcell svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
+.conn{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.conn .lg{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;background:var(--surface);color:var(--muted)}
+.conn .tx{flex:1;min-width:0}
+.conn .tx b{display:block}
+.co{padding:16px;display:flex;flex-direction:column;gap:14px}
+.co-h{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.co-h h3{font-size:17px;font-weight:600}
+.co-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.co-grid span{display:block;font-size:12.5px;color:var(--muted)}
+.photos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.ph{aspect-ratio:4/3;border-radius:var(--r-sm);background:linear-gradient(160deg,#DCE3D6,#B9C6B0 60%,#9DAE93);position:relative;overflow:hidden;max-width:100%}
+.ph.b{background:linear-gradient(160deg,#D9D6CF,#BDB6AA 55%,#8E877B)}
+.ph.c{background:linear-gradient(170deg,#CFD8E3,#AFBCCB 60%,#8797AA)}
+.ph span{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:11.5px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.step{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.step i{height:5px;border-radius:99px;background:var(--surface-2)}
+.step.done i{background:var(--ok)} .step.cur i{background:var(--accent)} .step.cur{color:var(--ink);font-weight:500}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--r-sm);font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.modal-bg{position:fixed;inset:0;background:rgba(21,26,35,.35);display:grid;place-items:center;z-index:40;padding:16px}
+.modal{background:var(--bg);border-radius:12px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 50px -20px rgba(21,26,35,.45)}
+.modal h3{font-size:18px}
+.modal p{margin:0;color:var(--muted)}
+.scrim{display:none}
+
+@media (max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .co-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .photos{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;left:0;top:0;bottom:0;width:272px;z-index:30;transform:translateX(-100%);transition:transform .25s;height:100%;padding-top:calc(20px + env(safe-area-inset-top,0px));padding-left:max(14px,env(safe-area-inset-left,0px))}
+  .app.open .side{transform:none}
+  .app.open .scrim{display:block;position:fixed;inset:0;background:rgba(21,26,35,.3);z-index:25}
+  .menu-btn{display:inline-flex}
+  .top,.content{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .stop span{display:none}
+  .dec{grid-template-columns:minmax(0,1fr)}
+  .dec .acts{grid-row:auto;justify-content:flex-start}
+  .fr{grid-template-columns:minmax(0,1fr)}
+  .win-body{grid-template-columns:1fr}
+  .wb-side{display:none}
+  .screen{aspect-ratio:auto;min-height:360px}
+  .fld{grid-template-columns:110px 1fr}
+  .steps{grid-template-columns:repeat(5,minmax(52px,1fr));overflow-x:auto}
+}
+@media (max-width:480px){
+  .kpi b{font-size:22px}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .co-grid{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+
+<div class="app" id="app">
+  <aside class="side" id="side">
+    <div class="brand"><div class="logo">PT</div><b>ProTender</b><span class="demo">Демо</span></div>
+    <button class="company" type="button" id="companyBtn">
+      <div class="av">П</div>
+      <div>ООО «Паритет»<small>Благоустройство</small></div>
+      <span class="chev">▾</span>
+    </button>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="limit"><div class="row" style="justify-content:space-between"><span>Нейросеть · Claude Pro</span><b class="num">62%</b></div><div class="bar"><i style="width:62%"></i></div><div class="faint" style="font-size:12px;margin-top:6px">Сброс лимита через 2 ч 14 мин</div></div>
+      <div class="me"><div class="av">РТ</div><div>Руслан Т.<div class="faint" style="font-size:12px">Администратор</div></div></div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="top">
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Меню">☰</button>
+      <h1 id="title">Сегодня</h1>
+      <div class="sp"></div>
+      <button class="stop" id="stopBtn" type="button"><i></i><span>Остановить роботов</span></button>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div id="modal"></div>
+
+<script>
+const IC={
+ today:'<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
+ tenders:'<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+ decisions:'<svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>',
+ contracts:'<svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg>',
+ contractors:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.4 6-5.4s5.4 2 6 5.4"/><path d="M16 4.8a3.2 3.2 0 010 6.2M18 14.8c1.7.7 2.8 2.5 3 5.2"/></svg>',
+ computer:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+ robots:'<svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5"/></svg>',
+ prefs:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
+ lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'
+};
+
+const STAGES={found:['Найдено',''],analysis:['Разбор','acc'],decision:['Ждёт решения','warn'],prep:['Подготовка','acc'],check:['Проверка','acc'],submit:['К подаче','warn'],submitted:['Подано',''],auction:['Торги','acc'],won:['Выиграно','ok'],lost:['Проиграно',''],declined:['Отказались','']};
+
+const T=[
+ {id:'t1',title:'Благоустройство общественной территории — сквер на ул. Советской',cust:'Администрация г. Тамбова',reg:'Тамбовская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:18450000,dead:'12.11 09:00',left:7,pl:'Сбербанк-АСТ',stage:'decision',num:'0164300004726000412',adv:'30%',sec:'184 500 ₽',reco:'yes'},
+ {id:'t9',title:'Капитальный ремонт дворовых территорий, 14 адресов',cust:'МКУ «Городское хозяйство» г. Пензы',reg:'Пензенская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:63900000,dead:'14.11 10:00',left:9,pl:'РТС-тендер',stage:'decision',num:'0855200000526001934',adv:'0%',sec:'639 000 ₽',reco:'no'},
+ {id:'t2',title:'Устройство детской игровой площадки в мкр. Северный',cust:'МКУ «УКС» г. Липецка',reg:'Липецкая обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:6920000,dead:'10.11 08:00',left:5,pl:'РТС-тендер',stage:'prep',num:'0146300030326000287',adv:'20%',sec:'69 200 ₽',reco:'yes'},
+ {id:'t3',title:'Ремонт асфальтобетонного покрытия дворовых территорий',cust:'Администрация Октябрьского района г. Саратова',reg:'Саратовская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:42300000,dead:'17.11 09:00',left:12,pl:'Росэлторг',stage:'analysis',num:'0360300011226000561',adv:'—',sec:'423 000 ₽'},
+ {id:'t4',title:'Установка малых архитектурных форм и освещения в парке «Юность»',cust:'Управление благоустройства г. Курска',reg:'Курская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:9480000,dead:'06.11 18:00',left:1,pl:'Сбербанк-АСТ',stage:'submit',num:'0144300004026000733',adv:'30%',sec:'94 800 ₽',reco:'yes'},
+ {id:'t5',title:'Благоустройство набережной реки Цна, 2 этап',cust:'Администрация г. Тамбова',reg:'Тамбовская обл.',law:'44-ФЗ',kind:'Электронный конкурс',nmck:127800000,dead:'24.11 10:00',left:19,pl:'Сбербанк-АСТ',stage:'found',num:'0164300004726000455',adv:'—',sec:'—'},
+ {id:'t6',title:'Озеленение и устройство газонов в парке Победы',cust:'МБУ «Зеленстрой» г. Воронежа',reg:'Воронежская обл.',law:'223-ФЗ',kind:'Аукцион в электронной форме',nmck:3150000,dead:'Торги 07.11 11:00',left:2,pl:'ЭТП ГПБ',stage:'auction',num:'32615482209',adv:'—',sec:'—'},
+ {id:'t7',title:'Благоустройство территории школы № 12',cust:'Управление образования г. Белгорода',reg:'Белгородская обл.',law:'44-ФЗ',kind:'Запрос котировок',nmck:4270000,dead:'Подано 03.11',left:null,pl:'Росэлторг',stage:'submitted',num:'0126300035826000918',adv:'—',sec:'—'},
+ {id:'t8',title:'Устройство пешеходных дорожек в сквере Борисоглебском',cust:'Администрация г. Курска',reg:'Курская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:11600000,dead:'Выиграно 30.10',left:null,pl:'Сбербанк-АСТ',stage:'won',num:'0144300004026000690',adv:'—',sec:'—'},
+ {id:'t10',title:'Обустройство контейнерных площадок, 38 шт.',cust:'Администрация г. Орла',reg:'Орловская обл.',law:'44-ФЗ',kind:'Электронный аукцион',nmck:5640000,dead:'Отказались 04.11',left:null,pl:'РТС-тендер',stage:'declined',num:'0154300001426000377',adv:'—',sec:'—'}
+];
+
+let D=[
+ {id:'d1',type:'Участие',tid:'t1',title:'Сквер на ул. Советской, Тамбов',sub:'Рекомендация: участвовать · НМЦК 18,45 млн ₽ · маржа от 18%',due:'до 07.11',who:'Руслан Т.',acts:['Участвуем','Не участвуем']},
+ {id:'d2',type:'Участие',tid:'t9',title:'Дворовые территории, 14 адресов, Пенза',sub:'Рекомендация: не участвовать · аванс 0%, оплата через 60 дней',due:'до 09.11',who:'Руслан Т.',acts:['Участвуем','Не участвуем']},
+ {id:'d3',type:'Подача',tid:'t4',title:'МАФ и освещение в парке «Юность», Курск',sub:'Заявка проверена: 31 из 31 требования · подать до 06.11 18:00',due:'сегодня',who:'Мария К., Руслан Т.',acts:['Одобрить подачу','Открыть']},
+ {id:'d4',type:'Цена',tid:'t2',title:'Детская площадка, мкр. Северный, Липецк',sub:'Нижняя граница в торгах: 5 880 000 ₽ · маржа 16%',due:'до 09.11',who:'Руслан Т.',acts:['Утвердить','Изменить']},
+ {id:'d5',type:'Подрядчик',tid:'t8',title:'Пешеходные дорожки, сквер Борисоглебский',sub:'ООО «ДорСтройСервис» · 7 900 000 ₽ · 45 дней · рейтинг 4,7',due:'до 08.11',who:'Андрей С.',acts:['Выбрать','Сравнить']},
+ {id:'d6',type:'Правка робота',tid:null,title:'Аналитик: проверять единицы измерения в характеристиках',sub:'Причина: отклонение заявки № 0126300035826000118 — «м²» вместо «м»',due:'',who:'Руслан Т.',acts:['Принять правку','Отклонить']}
+];
+
+const R=[
+ {id:'scout',n:'Разведчик',ab:'Р',on:true,now:'Найдено сегодня 142 закупки, отобрано 11',model:'Claude Haiku',lvl:4,sched:'Каждый час',week:'Отобрано 63 из 918',duty:'Ищет закупки по благоустройству на всех площадках и отбирает подходящие по правилам компании.'},
+ {id:'analyst',n:'Аналитик',ab:'А',on:true,now:'Разбирает «Ремонт асфальтобетонного покрытия…», Саратов — 38 из 54 страниц',model:'Claude Sonnet',lvl:4,sched:'По новой закупке',week:'Разобрано 21 закупка · 0 пропущенных требований',duty:'Читает документацию, выписывает требования со ссылкой на пункт, находит риски.'},
+ {id:'lead',n:'Руководитель тендера',ab:'РТ',on:true,now:'Готовы 2 рекомендации, ждут решения',model:'Claude Sonnet',lvl:3,sched:'После разбора и расчёта',week:'Рекомендаций 9 · совпало с решением 8',duty:'Сводит выводы робота-аналитика, сметчика и контролёра и готовит рекомендацию «участвовать / нет».'},
+ {id:'estimator',n:'Сметчик',ab:'С',on:true,now:'Считает себестоимость: «Детская площадка», Липецк',model:'Claude Sonnet',lvl:3,sched:'После разбора',week:'Расчётов 12',duty:'Считает себестоимость, минимальную цену и план торгов.'},
+ {id:'writer',n:'Составитель заявки',ab:'З',on:true,now:'Свободен',model:'Claude Sonnet',lvl:3,sched:'После решения «Участвуем»',week:'Заявок 7',duty:'Заполняет формы, переносит характеристики дословно, собирает пакет документов компании.'},
+ {id:'checker',n:'Контролёр',ab:'К',on:true,now:'Проверил «МАФ и освещение», Курск: замечаний нет',model:'Claude Sonnet',lvl:3,sched:'Перед каждой подачей',week:'Проверок 9 · найдено замечаний 4',duty:'Проверяет заявку перед подачей: сроки, поля, реквизиты, каждое требование.'},
+ {id:'operator',n:'Оператор площадки',ab:'О',on:true,now:'Заполняет заявку на Сбербанк-АСТ · ждёт одобрения подписи',model:'Claude Sonnet',lvl:2,sched:'По одобрению подачи',week:'Подано 5',duty:'Работает на удалённом компьютере: загружает документы, заполняет формы, подписывает после одобрения.'},
+ {id:'bidder',n:'Аукционист',ab:'Ау',on:true,now:'Торги 07.11 11:00 — «Озеленение в парке Победы»',model:'Claude Haiku',lvl:2,sched:'Во время торгов',week:'Торгов 2',duty:'Делает ценовые предложения в торгах не ниже утверждённой границы.'},
+ {id:'supply',n:'Снабженец',ab:'Сн',on:true,now:'Переписка с 6 компаниями по «Пешеходным дорожкам»',model:'Claude Sonnet',lvl:3,sched:'После победы',week:'Компаний найдено 23 · КП получено 9',duty:'Ищет компании-подрядчики, пишет им, собирает коммерческие предложения.'},
+ {id:'pm',n:'Менеджер исполнения',ab:'М',on:false,now:'Выключен',model:'Claude Sonnet',lvl:1,sched:'Ежедневно 09:00',week:'—',duty:'Следит за сроками контракта, готовит акты, разбирает фото с объекта.'},
+ {id:'teacher',n:'Учитель',ab:'У',on:true,now:'Предложил 1 правку: Аналитик',model:'Claude Sonnet',lvl:2,sched:'После каждого итога',week:'Уроков 3 · правок 1',duty:'Разбирает итоги тендеров и предлагает правки, чтобы ошибки не повторялись.'}
+];
+const LV=['Делает человек','Робот готовит, человек одобряет','Робот делает и сообщает','Робот делает сам'];
+
+const fmt=n=>n.toLocaleString('ru-RU')+' ₽';
+const mln=n=>(n/1e6).toLocaleString('ru-RU',{maximumFractionDigits:2})+' млн ₽';
+const pill=s=>`<span class="pill ${STAGES[s][1]}"><span class="dot"></span>${STAGES[s][0]}</span>`;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s);
+
+const NAV=[
+ ['today','Сегодня','today'],['decisions','Решения','decisions'],['tenders','Тендеры','tenders'],['contracts','Исполнение','contracts'],['contractors','Подрядчики','contractors'],
+ 'sep',['computer','Компьютер','computer'],['robots','Роботы','robots'],['prefs-companies','Настройки','prefs']
+];
+function renderNav(active){
+  $('#nav').innerHTML=NAV.map(n=>{
+    if(n==='sep')return '<div class="nav-sep"></div>';
+    const [h,l,ic]=n; const on=active===h||active.startsWith(h.split('-')[0]);
+    let b='';
+    if(h==='decisions')b=D.length?`<span class="badge">${D.length}</span>`:'';
+    if(h==='tenders')b=`<span class="badge grey">${T.length}</span>`;
+    if(h==='computer')b='<span class="pill ok" style="padding:0 8px;font-size:11.5px;margin-left:auto">в сети</span>';
+    return `<a href="#${h}" class="${on?'on':''}">${IC[ic]}<span>${l}</span>${b}</a>`;
+  }).join('');
+}
+
+/* ---------- views ---------- */
+function decCard(d){
+  return `<div class="dec" data-dec="${d.id}">
+    <div><div class="row" style="gap:8px"><span class="pill ${d.type==='Участие'?'warn':d.type==='Правка робота'?'':'acc'}">${d.type}</span><span class="t">${d.title}</span></div></div>
+    <div class="acts">${d.acts.map((a,i)=>`<button class="btn sm ${i===0?(d.type==='Участие'?'ok':'pri'):''}" data-act="${d.id}" data-i="${i}">${a}</button>`).join('')}</div>
+    <div class="meta"><span>${d.sub}</span>${d.due?`<span>· ${d.due}</span>`:''}<span>· Решает: ${d.who}</span></div>
+  </div>`;
+}
+function vToday(){
+  return `
+  <div class="kpis">
+    <div class="kpi hl"><span>Ждёт решения</span><b class="num">${D.length}</b><small>2 по участию</small></div>
+    <div class="kpi"><span>Подано в ноябре</span><b class="num">4</b><small>в октябре — 14</small></div>
+    <div class="kpi"><span>Выиграно в ноябре</span><b class="num">1</b><small>в октябре — 3</small></div>
+    <div class="kpi"><span>Найдено сегодня</span><b class="num">142</b><small>отобрано 11</small></div>
+  </div>
+  <div class="cols">
+    <div class="stack">
+      <div class="sec-h"><h2>Ждёт решения</h2><a href="#decisions">Все решения</a></div>
+      <div class="box list">${D.slice(0,4).map(decCard).join('')||'<div class="dec"><span class="muted">Все решения приняты</span></div>'}</div>
+    </div>
+    <div class="stack">
+      <div class="sec-h"><h2>Ближайшие сроки</h2></div>
+      <div class="box list">
+        <div class="dl urgent"><div class="d">06.11<small>18:00</small></div><div>Подать заявку<div class="small muted">МАФ и освещение, Курск</div></div></div>
+        <div class="dl"><div class="d">07.11<small>11:00</small></div><div>Торги<div class="small muted">Озеленение в парке Победы, Воронеж</div></div></div>
+        <div class="dl urgent"><div class="d">09.11<small>23:59</small></div><div>Подписать контракт<div class="small muted">Пешеходные дорожки, Курск</div></div></div>
+        <div class="dl"><div class="d">10.11<small>08:00</small></div><div>Подать заявку<div class="small muted">Детская площадка, Липецк</div></div></div>
+      </div>
+      <div class="sec-h"><h2>Роботы сейчас</h2><a href="#robots">Все роботы</a></div>
+      <div class="box list">${R.filter(r=>['analyst','operator','supply'].includes(r.id)).map(r=>`<a class="rb" href="#robot-${r.id}" style="text-decoration:none;color:inherit"><div class="rb-ic ${r.on?'on':''}">${r.ab}</div><div class="tx"><b>${r.n}</b><div>${r.now}</div></div></a>`).join('')}</div>
+    </div>
+  </div>`;
+}
+function vDecisions(){
+  const types=['Все','Участие','Цена','Подача','Подрядчик','Правка робота'];
+  return `<div class="chips" id="dchips">${types.map((t,i)=>`<button class="chip ${i===0?'on':''}" data-dt="${t}">${t}<span>${t==='Все'?D.length:D.filter(d=>d.type===t).length}</span></button>`).join('')}</div>
+  <div class="box list" id="dlist">${D.map(decCard).join('')||'<div class="dec"><span class="muted">Все решения приняты</span></div>'}</div>`;
+}
+let tFilter='all';
+function vTenders(){
+  const groups=[['all','Все'],['found','Найдено'],['analysis','Разбор'],['decision','Ждёт решения'],['prep','Подготовка'],['submit','К подаче'],['submitted','Подано'],['auction','Торги'],['won','Выиграно'],['declined','Отказались']];
+  const rows=T.filter(t=>tFilter==='all'||t.stage===tFilter);
+  return `<div class="toolbar"><input class="search" id="tsearch" placeholder="Название, заказчик или номер закупки"><select class="sel" style="max-width:180px" id="tlaw"><option>44-ФЗ и 223-ФЗ</option><option>44-ФЗ</option><option>223-ФЗ</option></select></div>
+  <div class="chips">${groups.map(([k,l])=>`<button class="chip ${tFilter===k?'on':''}" data-tf="${k}">${l}<span>${k==='all'?T.length:T.filter(t=>t.stage===k).length}</span></button>`).join('')}</div>
+  <div class="tscroll"><table><thead><tr><th>Закупка</th><th>Этап</th><th class="r">НМЦК</th><th>Срок</th><th>Площадка</th></tr></thead><tbody>
+  ${rows.map(t=>`<tr class="click" data-go="tender-${t.id}"><td><span class="t">${t.title}</span><span class="s">${t.cust} · ${t.law}</span></td><td>${pill(t.stage)}</td><td class="r num">${mln(t.nmck)}</td><td class="num" style="white-space:nowrap">${t.dead}${t.left!=null&&t.left<=2?' <span class="pill danger" style="margin-left:4px">'+t.left+' дн.</span>':''}</td><td style="white-space:nowrap">${t.pl}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+const REQ1=[
+ ['Опыт исполнения аналогичного контракта не менее 20% НМЦК','Извещение, п. 8.2','ok','Контракт № 0144300004025000412 · 11,6 млн ₽'],
+ ['Членство в СРО в области строительства','Извещение, п. 8.1','ok','Выписка от 01.11.2026'],
+ ['Тротуарная плитка — характеристики по КТРУ 23.61.11.000-00000003','ТЗ, приложение 2, поз. 4','warn','Перенести дословно, 9 характеристик'],
+ ['Гарантия на работы 36 месяцев','Проект контракта, п. 9.1','ok',''],
+ ['Срок выполнения работ — до 30.06.2027','Проект контракта, п. 3.2','ok','Старт не раньше 15.04.2027'],
+ ['Обеспечение исполнения контракта 10% цены','Извещение, п. 12','ok','≈ 1 590 000 ₽ при нашей цене'],
+ ['Собственная спецтехника','—','nd','В документации не найдено']
+];
+const RISK1=[['ok','Аванс 30%, оплата за 7 рабочих дней'],['warn','Штраф за просрочку 0,1% цены в день'],['warn','Работы в зимний период не допускаются'],['ok','Заказчик принимал похожие работы без претензий (2 контракта)']];
+let tTab='req';
+function vTender(id){
+  const t=T.find(x=>x.id===id)||T[0];
+  const isMain=t.id==='t1';
+  const reco=t.reco==='yes'?`<div class="reco yes"><div class="v">Рекомендую участвовать</div><p>${isMain?'Все требования выполняем. Аванс 30%, оплата за 7 рабочих дней. При цене не ниже 15,48 млн ₽ маржа от 18%. По 9 прошлым торгам заказчика цена снижалась на 12–18%.':'Требования выполняем, условия оплаты приемлемые, маржа выше минимальной.'}</p><div class="by">Руководитель тендера · 05.11 09:20</div></div>`
+   : t.reco==='no'?`<div class="reco no"><div class="v">Рекомендую не участвовать</div><p>Аванса нет, оплата через 60 дней после приёмки. Нужно заморозить 6,4 млн ₽ обеспечения — выше лимита компании (5 млн ₽). Штраф за просрочку 0,3% в день.</p><div class="by">Руководитель тендера · 05.11 10:05</div></div>`:'';
+  const decide=t.stage==='decision'?`<div class="decide"><span class="q">Участвуем в этой закупке?</span><button class="btn ok" data-part="${t.id}" data-v="1">Участвуем</button><button class="btn" data-part="${t.id}" data-v="0">Не участвуем</button><button class="btn ghost">Вопрос заказчику</button></div>`
+   : t.stage==='submit'?`<div class="decide"><span class="q">Заявка готова к подаче</span><button class="btn pri" data-toast="Подача одобрена — робот подпишет и подаст">Одобрить подачу</button><a class="btn" href="#computer" style="text-decoration:none">Открыть компьютер</a></div>`:'';
+  const reqs=(isMain?REQ1:[['Опыт исполнения аналогичного контракта','Извещение, п. 8.2','ok',''],['Членство в СРО','Извещение, п. 8.1','ok',''],['Характеристики материалов по КТРУ','ТЗ, приложение 1','warn','Перенести дословно']]);
+  const tabs=[['req','Требования',reqs.length],['risk','Риски',isMain?RISK1.length:2],['calc','Расчёт',''],['docs','Документы',''],['hist','История','']];
+  let body='';
+  if(tTab==='req')body=`<div class="box list">${reqs.map((r,i)=>`<div class="req"><span class="n num">${i+1}</span><div><div>${r[0]}</div>${r[3]?`<div class="note">${r[3]}</div>`:''}<span class="ref">${r[1]}</span></div>${r[2]==='ok'?'<span class="pill ok">Выполняем</span>':r[2]==='warn'?'<span class="pill warn">Внимание</span>':'<span class="pill">Нет данных</span>'}</div>`).join('')}</div>`;
+  if(tTab==='risk')body=`<div class="box list">${(isMain?RISK1:[['ok','Аванс '+t.adv],['warn','Штраф за просрочку 0,1% в день']]).map(r=>`<div class="req" style="grid-template-columns:minmax(0,1fr) auto"><div>${r[1]}</div><span class="pill ${r[0]}">${r[0]==='ok'?'Хорошо':'Риск'}</span></div>`).join('')}</div>`;
+  if(tTab==='calc'){const c=isMain?[13120000,15480000]:[Math.round(t.nmck*.71),Math.round(t.nmck*.84)];
+    body=`<div class="box kv num"><div>НМЦК</div><div class="r">${fmt(t.nmck)}</div><div>Себестоимость работ и материалов</div><div class="r">${fmt(c[0])}</div><div>Нижняя граница в торгах</div><div class="r">${fmt(c[1])}</div><div>Ожидаемое снижение</div><div class="r">12–18%</div><div class="tot">Маржа при нижней границе</div><div class="r tot">${Math.round((c[1]-c[0])/c[1]*100)}%</div></div>
+    <div class="row"><button class="btn">Смета подробно</button><button class="btn">Предложения подрядчиков · 3</button></div>`}
+  if(tTab==='docs')body=`<div class="box list">${[['DOCX','Заявка на участие','Готово · Составитель заявки'],['XLSX','Характеристики товаров','Готово · проверено Контролёром'],['PDF','Выписка из реестра СРО','01.11.2026'],['PDF','Опыт: контракт и акт приёмки','Контракт № 0144300004025000412'],['ZIP','Документация закупки','12 файлов · 54 стр.']].map(d=>`<div class="doc"><div class="ic">${d[0]}</div><div class="tx">${d[1]}<div class="small muted">${d[2]}</div></div><button class="btn sm">Открыть</button></div>`).join('')}</div>`;
+  if(tTab==='hist')body=`<div class="box list">${[['05.11 08:14','Разведчик нашёл закупку и отобрал по правилам компании'],['05.11 08:40','Аналитик разобрал документацию: 27 требований, 4 риска'],['05.11 09:05','Сметчик посчитал себестоимость и нижнюю границу'],['05.11 09:20','Руководитель тендера подготовил рекомендацию'],['05.11 09:21','Отправлено на решение: Руслан Т.']].map(h=>`<div class="hist"><span class="when num">${h[0]}</span><span>${h[1]}</span></div>`).join('')}</div>`;
+  return `<div class="thead">
+    <div class="row">${pill(t.stage)}<span class="muted small num">№ ${t.num} · ${t.law} · ${t.kind}</span></div>
+    <h2>${t.title}</h2>
+    <div class="muted">${t.cust} · ${t.reg}</div>
+  </div>
+  <div class="facts num"><div><span>НМЦК</span><b>${fmt(t.nmck)}</b></div><div><span>Срок подачи</span><b>${t.dead}</b></div><div><span>Площадка</span><b>${t.pl}</b></div><div><span>Аванс · обеспечение заявки</span><b>${t.adv} · ${t.sec}</b></div></div>
+  ${reco}${decide}
+  <div class="tabs" id="ttabs">${tabs.map(([k,l,c])=>`<button class="${tTab===k?'on':''}" data-tt="${k}">${l}${c?` <span class="faint">${c}</span>`:''}</button>`).join('')}</div>
+  ${body}`;
+}
+function vContracts(){
+  return `<div class="box co">
+    <div class="co-h"><span class="pill ok"><span class="dot"></span>Контракт подписывается</span><h3>Устройство пешеходных дорожек в сквере Борисоглебском</h3></div>
+    <div class="co-grid num"><div><span>Заказчик</span>Администрация г. Курска</div><div><span>Цена контракта</span>9 860 000 ₽</div><div><span>Срок работ</span>до 15.12.2026</div><div><span>Подписать до</span><b style="color:var(--danger)">09.11.2026</b></div><div><span>Подрядчик</span>Выбирается · 3 предложения</div><div><span>Прораб</span>Олег П.</div></div>
+    <div class="steps">${['Подписание','Подрядчик','Работы','Приёмка','Оплата'].map((s,i)=>`<div class="step ${i===0?'cur':''}"><i></i>${s}</div>`).join('')}</div>
+    <div class="row"><button class="btn pri" data-toast="Контракт отправлен на подпись директору">Подписать контракт</button><a class="btn" href="#contractors" style="text-decoration:none">Подрядчики</a><button class="btn">Документы · 6</button></div>
+  </div>
+  <div class="box co">
+    <div class="co-h"><span class="pill acc"><span class="dot"></span>Идут работы</span><h3>Благоустройство двора по ул. Карла Маркса, 41</h3></div>
+    <div class="co-grid num"><div><span>Заказчик</span>Администрация г. Липецка</div><div><span>Цена контракта</span>7 240 000 ₽</div><div><span>Срок работ</span>до 20.11.2026</div><div><span>Подрядчик</span>ООО «ГорДорСтрой»</div><div><span>Выполнено</span>78%</div><div><span>Акт КС-2</span>Черновик готов</div></div>
+    <div class="steps">${['Подписание','Подрядчик','Работы','Приёмка','Оплата'].map((s,i)=>`<div class="step ${i<2?'done':i===2?'cur':''}"><i></i>${s}</div>`).join('')}</div>
+    <div class="sec-h"><h2>Фото с объекта</h2><span class="small muted">Google Диск · Объекты / Липецк, К. Маркса 41</span></div>
+    <div class="photos"><div class="ph"><span>04.11 · газон, посев</span></div><div class="ph b"><span>03.11 · бордюр, 120 м</span></div><div class="ph c"><span>01.11 · плитка, 340 м²</span></div><div class="ph b"><span>30.10 · основание</span></div></div>
+    <div class="row"><button class="btn">Акт КС-2 · черновик</button><button class="btn">Переписка с подрядчиком</button></div>
+  </div>`;
+}
+function vContractors(){
+  const c=[['ООО «ДорСтройСервис»','Курск','Дорожки, плитка, бордюр','КП получено','ok','7 900 000 ₽','4,7'],['ООО «ГорДорСтрой»','Липецк','Асфальт, дворы','КП получено','ok','8 350 000 ₽','4,5'],['ООО «Ландшафт-Центр»','Белгород','Озеленение, плитка','Переговоры','acc','8 120 000 ₽','4,2'],['ООО «КурскБлагоустрой»','Курск','Благоустройство','Ждём ответа','','—','—'],['ООО «СтройПарк»','Орёл','МАФ, дорожки','Ждём ответа','','—','—'],['ИП Захаров А. Н.','Курск','Плитка','Отказ','danger','—','3,9']];
+  return `<div class="toolbar"><input class="search" placeholder="Компания, город или вид работ"><select class="sel" style="max-width:280px"><option>Пешеходные дорожки, Курск</option><option>Все объекты</option></select></div>
+  <div class="tscroll"><table><thead><tr><th>Компания</th><th>Город</th><th>Виды работ</th><th>Статус</th><th class="r">Предложение</th><th class="r">Рейтинг</th><th></th></tr></thead><tbody>
+  ${c.map(r=>`<tr><td><span class="t" style="min-width:180px">${r[0]}</span><span class="s">Telegram · почта</span></td><td>${r[1]}</td><td class="s" style="color:var(--ink)">${r[2]}</td><td><span class="pill ${r[4]}">${r[3]}</span></td><td class="r num" style="white-space:nowrap">${r[5]}</td><td class="r num">${r[6]}</td><td><button class="btn sm">Переписка</button></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="row"><button class="btn pri" data-toast="Снабженец ищет ещё компании">Найти ещё подрядчиков</button><button class="btn">Добавить свою компанию</button></div>`;
+}
+function vComputer(){
+  return `<div class="screen-wrap">
+    <div class="screen-bar">
+      <div class="status"><span class="pulse"></span><span class="tx">Работает робот · Оператор площадки заполняет заявку</span></div>
+      <div class="sp" style="margin-left:auto"></div>
+      <select class="sel" style="max-width:300px" aria-label="Профиль компании"><option>ООО «Паритет» · Москва · 95.163.48.17</option></select>
+      <button class="btn" data-toast="Робот на паузе — управление у вас">Взять управление</button>
+      <button class="btn">Во весь экран</button>
+    </div>
+    <div class="screen" id="screen">
+      <div class="win">
+        <div class="win-top"><span class="tab">Сбербанк-АСТ — Подача заявки</span><span class="tab" style="background:none">ЕИС — Закупки</span></div>
+        <div class="win-url"><span class="lock"></span>utp.sberbank-ast.ru/AP/Notice/Request/0144300004026000733</div>
+        <div class="win-body">
+          <div class="wb-side"><b>Личный кабинет</b><div class="o">Поиск закупок</div><div class="o on">Мои заявки</div><div class="o">Торги</div><div class="o">Контракты</div><div class="o">Спецсчёт</div><div class="o">Документы организации</div></div>
+          <div class="wb-main">
+            <h4>Заявка на участие · № 0144300004026000733</h4>
+            <div class="fld"><label>Участник</label><div class="in">ООО «Паритет»</div></div>
+            <div class="fld"><label>Предмет закупки</label><div class="in">Установка МАФ и освещения в парке «Юность»</div></div>
+            <div class="fld"><label>Характеристики товара</label><div class="in fill">Скамья парковая: длина 1800 мм, материал — лиственница…</div></div>
+            <div class="fld"><label>Страна происхождения</label><div class="in fill">Российская Федерация</div></div>
+            <div class="file">Характеристики_товаров.xlsx <i>✓ загружено</i></div>
+            <div class="file">Выписка_СРО_01.11.2026.pdf <i>✓ загружено</i></div>
+            <div class="sign">Подписать и подать</div>
+          </div>
+        </div>
+      </div>
+      <div class="task"><span class="tb on">Яндекс Браузер</span><span class="tb">КриптоПро</span><span class="tb">Проводник</span><span class="clock num">14:06</span></div>
+      <svg class="cursor" id="cursor" viewBox="0 0 16 16"><path d="M1 1l5 13 2-5 5-2z" fill="#fff" stroke="#151A23" stroke-width="1"/></svg>
+    </div>
+    <div class="approve-strip"><div class="tx"><b>Ждёт одобрения: подписать и подать заявку</b><span class="small muted">МАФ и освещение, Курск · срок 06.11 18:00 · проверено 31 из 31</span></div><button class="btn pri" data-toast="Одобрено — робот подписывает заявку">Одобрить подпись</button><button class="btn">Отклонить</button></div>
+    <div class="sec-h"><h2>Журнал действий</h2><span class="small muted">Сегодня</span></div>
+    <div class="box list log">${[['14:06','Оператор площадки заполнил характеристики товара (14 позиций)'],['14:04','Оператор площадки загрузил 2 файла'],['14:02','Оператор площадки открыл заявку на Сбербанк-АСТ'],['13:40','Мария К. зашла на компьютер · 12 минут'],['09:02','Робот вошёл на площадку РТС-тендер · проверка уведомлений']].map(h=>`<div class="hist"><span class="when num">${h[0]}</span><span>${h[1]}</span></div>`).join('')}</div>
+  </div>`;
+}
+function vRobots(){
+  return `<div class="row" style="justify-content:space-between"><div class="row small muted"><span class="pill ok"><span class="dot"></span>Работают: ${R.filter(r=>r.on).length}</span><span class="pill">Выключены: ${R.filter(r=>!r.on).length}</span></div><button class="btn">Добавить робота</button></div>
+  <div class="rgrid">${R.map(r=>`<a class="rcard" href="#robot-${r.id}" style="text-decoration:none;color:inherit"><div class="h"><div class="rb-ic ${r.on?'on':''}">${r.ab}</div><b>${r.n}</b><span class="pill ${r.on?'ok':''}" style="margin-left:auto">${r.on?'Работает':'Выключен'}</span></div><div class="now">${r.now}</div><div class="f"><span class="lvl" title="${LV[r.lvl-1]}">${[1,2,3,4].map(i=>`<i class="${i<=r.lvl?'on':''}"></i>`).join('')}</span><span>${LV[r.lvl-1]}</span></div></a>`).join('')}</div>`;
+}
+function vRobot(id){
+  const r=R.find(x=>x.id===id)||R[1];
+  const md={analyst:`# Аналитик
+
+## Задача
+Прочитать всю документацию закупки и выписать требования к участнику, заявке и работам.
+
+## Правила
+- Каждое требование — со ссылкой на файл и пункт.
+- Если данных нет — писать «Нет данных», не додумывать.
+- Характеристики по КТРУ переносить дословно.
+- Проверять единицы измерения (м, м², м³, шт.).
+
+## Риски, которые ищем
+Аванс, обеспечение, штрафы, сроки оплаты, опыт, СРО, зимние работы.`}[r.id]||`# ${r.n}
+
+## Задача
+${r.duty}
+
+## Правила
+- Действовать только в пределах уровня самостоятельности.
+- Все результаты — в карточку закупки.`;
+  return `<div class="row"><a href="#robots" class="muted" style="text-decoration:none">← Роботы</a></div>
+  <div class="co-h"><div class="rb-ic ${r.on?'on':''}" style="width:40px;height:40px">${r.ab}</div><h2 style="font-size:22px;font-weight:600">${r.n}</h2><label class="sw" style="margin-left:auto"><input type="checkbox" id="rob-on" ${r.on?'checked':''}><i></i><span>${r.on?'Работает':'Выключен'}</span></label></div>
+  <div class="muted">${r.duty}</div>
+  <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="kpi"><span>Сейчас</span><div style="font-weight:500;margin-top:4px">${r.now}</div></div><div class="kpi"><span>За неделю</span><div style="font-weight:500;margin-top:4px">${r.week}</div></div><div class="kpi"><span>Расход лимита за неделю</span><b class="num">${r.id==='analyst'?'31%':'6%'}</b></div></div>
+  <div class="box form">
+    <div class="fr"><label for="rob-lvl">Самостоятельность</label><select class="sel" id="rob-lvl">${LV.map((l,i)=>`<option ${i===r.lvl-1?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="fr"><label for="rob-model">Нейросеть</label><select class="sel" id="rob-model">${['Claude Haiku — быстро и дёшево','Claude Sonnet — основная','Claude Opus — сложные случаи'].map(m=>`<option ${m.startsWith(r.model)?'selected':''}>${m}</option>`).join('')}</select></div>
+    <div class="fr"><label for="rob-sched">Когда работает</label><select class="sel" id="rob-sched"><option>${r.sched}</option><option>Каждый час</option><option>Ежедневно 09:00</option><option>По кнопке</option></select></div>
+    <div class="fr"><label for="rob-lim">Лимит в день<small>доля общего лимита нейросети</small></label><div class="inline"><input class="inp num" id="rob-lim" value="${r.id==='analyst'?'40':'10'}"><span class="muted">%</span></div></div>
+    <div class="fr"><span class="lb">Навыки</span><div class="tagset">${(r.id==='analyst'?['Разбор 44-ФЗ','Разбор 223-ФЗ','Поиск аванса и обеспечения','КТРУ','Распознавание сканов']:['Базовые навыки']).map(s=>`<span class="tag">${s}</span>`).join('')}<button class="tag add">+ Навык</button></div></div>
+  </div>
+  <div class="sec-h"><h2>Инструкция</h2><span class="small muted">Версия 7 · 05.11 · Руслан Т.</span></div>
+  <textarea id="rob-md" aria-label="Инструкция робота">${md}</textarea>
+  <div class="row"><button class="btn pri" data-toast="Сохранено · версия 8 проверяется на прошлых тендерах">Сохранить</button><button class="btn">Проверить на прошлых тендерах</button></div>
+  <div class="sec-h"><h2>Версии</h2></div>
+  <div class="box list">${[['v7','05.11','Проверять единицы измерения','Точность 96% → 98%'],['v6','29.10','Искать запрет зимних работ','Точность 94% → 96%'],['v5','21.10','Ссылка на пункт у каждого требования','Точность 91% → 94%']].map((v,i)=>`<div class="doc"><div class="ic" style="height:32px">${v[0]}</div><div class="tx">${v[2]}<div class="small muted">${v[1]} · ${v[3]}</div></div>${i?'<button class="btn sm">Вернуть</button>':'<span class="pill ok">Текущая</span>'}</div>`).join('')}</div>`;
+}
+
+const PTABS=[['companies','Компании'],['selection','Отбор тендеров'],['auto','Автоматика'],['people','Люди и доступ'],['notify','Уведомления'],['channels','Связь и сервисы'],['ai','Нейросеть'],['security','Безопасность']];
+const PEOPLE=['Руслан Т.','Андрей С.','Мария К.','Олег П.'];
+function vPrefs(tab){
+  let b='';
+  if(tab==='companies')b=`<div class="box co">
+    <div class="co-h"><div class="av" style="width:40px;height:40px">П</div><div><h3>ООО «Паритет»</h3><div class="small muted">Благоустройство · вся Россия</div></div><span class="pill ok" style="margin-left:auto">Активна</span></div>
+    <div class="co-grid"><div><span>Директор</span>Андрей С.</div><div><span>ЭЦП директора</span>действует до 14.09.2027 · <span style="color:var(--ok)">на компьютере</span></div><div><span>Российский адрес в интернете</span><span class="num">Москва · 95.163.48.17 · в сети</span></div><div><span>СРО</span>Действует до 2027</div><div><span>Почта для площадок</span>tender@paritet.example</div><div><span>Заморожено в обеспечениях</span><span class="num">1,9 из 5 млн ₽</span></div></div>
+    <div><div class="small muted" style="margin-bottom:6px">Площадки</div><div class="tagset">${['ЕИС','Сбербанк-АСТ','РТС-тендер','Росэлторг','ЭТП ГПБ','B2B-Center'].map(p=>`<span class="tag">✓ ${p}</span>`).join('')}<button class="tag add">+ Площадка</button></div></div>
+    <div><div class="small muted" style="margin-bottom:6px">Документы компании</div><div class="tagset">${['Устав','Выписка ЕГРЮЛ','Выписка СРО','Решение о крупной сделке','Опыт: 12 контрактов','Бухбаланс 2025'].map(p=>`<span class="tag">${p}</span>`).join('')}<button class="tag add">+ Документ</button></div></div>
+    <div class="row"><button class="btn">Изменить</button><button class="btn">Правила компании</button></div>
+  </div>
+  <button class="btn" style="align-self:flex-start">+ Добавить компанию</button>`;
+  if(tab==='selection')b=`<div class="box form">
+    <div class="fr"><span class="lb">Виды работ</span><div class="tagset">${['Благоустройство','Озеленение','Детские площадки','Тротуарная плитка','Асфальтирование дворов','МАФ','Освещение парков'].map(s=>`<span class="tag">${s} ✕</span>`).join('')}<button class="tag add">+ Добавить</button></div></div>
+    <div class="fr"><label for="s-reg">Регионы</label><select class="sel" id="s-reg"><option>Вся Россия</option><option>Центральный ФО</option><option>Выбрать регионы…</option></select></div>
+    <div class="fr"><span class="lb">НМЦК</span><div class="inline"><span class="muted">от</span><input class="inp num" value="1 000 000" aria-label="НМЦК от"><span class="muted">до</span><input class="inp num" value="1 000 000 000" aria-label="НМЦК до"><span class="muted">₽</span></div></div>
+    <div class="fr"><span class="lb">Законы</span><div class="inline"><label class="sw"><input type="checkbox" checked><i></i>44-ФЗ</label><label class="sw"><input type="checkbox" checked><i></i>223-ФЗ</label><label class="sw"><input type="checkbox"><i></i>Коммерческие</label></div></div>
+    <div class="fr"><label for="s-mar">Минимальная маржа</label><div class="inline"><input class="inp num" id="s-mar" value="15"><span class="muted">%</span></div></div>
+    <div class="fr"><label for="s-adv">Брать закупки без аванса</label><select class="sel" id="s-adv"><option>Да, если оплата до 30 дней</option><option>Да, всегда</option><option>Нет</option></select></div>
+    <div class="fr"><label for="s-sec">Лимит обеспечений одновременно</label><div class="inline"><input class="inp num" id="s-sec" value="5 000 000"><span class="muted">₽</span></div></div>
+    <div class="fr"><label for="s-days">Не брать, если до подачи меньше</label><div class="inline"><input class="inp num" id="s-days" value="3"><span class="muted">дней</span></div></div>
+  </div>
+  <div class="row"><button class="btn pri" data-toast="Правила отбора сохранены">Сохранить</button></div>`;
+  if(tab==='auto'){const rows=[['Поиск и разбор закупок','Всегда',3,[]],['Решение об участии','Всегда',-1,['Руслан Т.']],['Расчёт цены','Всегда',3,[]],['Нижняя граница в торгах','Всегда',1,['Руслан Т.']],['Подача заявки','НМЦК до 10 млн ₽',1,['Мария К.','Руслан Т.']],['Подача заявки','НМЦК от 10 млн ₽',1,['Руслан Т.']],['Шаг в торгах','Не ниже утверждённой границы',2,[]],['Первое письмо подрядчику','Всегда',3,[]],['Обещание цены или сроков подрядчику','Всегда',1,['Андрей С.']],['Выбор подрядчика и договор','Всегда',1,['Андрей С.']],['Подписание контракта','Всегда',1,['Андрей С.']],['Платежи и банковские гарантии','Всегда',0,['Андрей С.']],['Правка инструкции робота','Всегда',1,['Руслан Т.']]];
+    b=`<div class="tscroll"><table><thead><tr><th>Действие</th><th>Условие</th><th>Как делается</th><th>Кто одобряет</th></tr></thead><tbody>
+    ${rows.map((r,i)=>`<tr><td style="font-weight:500;min-width:200px">${r[0]}</td><td class="muted" style="min-width:150px">${r[1]}</td><td style="min-width:260px">${r[2]<0?`<span class="lockcell">${IC.lock}Только человек</span>`:`<select class="sel" aria-label="Как делается: ${r[0]}" style="max-width:290px">${LV.map((l,j)=>`<option ${j===r[2]?'selected':''}>${l}</option>`).join('')}</select>`}</td><td style="min-width:200px"><div class="tagset">${r[3].map(p=>`<span class="tag">${p}</span>`).join('')||'<span class="faint">—</span>'}${r[2]===1||r[2]<0||r[2]===0?'<button class="tag add">+</button>':''}</div></td></tr>`).join('')}
+    </tbody></table></div><div class="row"><button class="btn pri" data-toast="Автоматика сохранена">Сохранить</button><button class="btn">+ Правило</button></div>`}
+  if(tab==='people')b=`<div class="tscroll"><table><thead><tr><th>Человек</th><th>Роль</th><th>Компьютер с ЭЦП</th><th>Последний вход</th><th></th></tr></thead><tbody>
+    ${[['Руслан Т.','Администратор','Полный доступ','сегодня 13:58'],['Андрей Соколов','Директор','Полный доступ','вчера 19:12'],['Мария Ковалёва','Тендерный специалист','Полный доступ','сегодня 13:40'],['Олег Петров','Прораб','Нет доступа','02.11 08:15']].map(p=>`<tr><td><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="av">${p[0].split(' ').map(x=>x[0]).join('')}</div><span style="font-weight:500;white-space:nowrap">${p[0]}</span></div></td><td><select class="sel" style="max-width:220px" aria-label="Роль"><option>${p[1]}</option><option>Администратор</option><option>Директор</option><option>Тендерный специалист</option><option>Прораб</option><option>Только просмотр</option></select></td><td style="white-space:nowrap">${p[2]}</td><td class="muted num" style="white-space:nowrap">${p[3]}</td><td><button class="btn sm ghost">Изменить</button></td></tr>`).join('')}
+    </tbody></table></div><button class="btn pri" style="align-self:flex-start">Пригласить человека</button>`;
+  if(tab==='notify')b=`<div class="box form">
+    <div class="fr"><span class="lb">Сводка в Telegram<small>@ProTender_Paritet_bot</small></span><div class="inline"><label class="sw"><input type="checkbox" checked><i></i>Утром</label><input class="inp num" value="09:00" style="max-width:90px" aria-label="Время утренней сводки"><label class="sw"><input type="checkbox" checked><i></i>Вечером</label><input class="inp num" value="18:00" style="max-width:90px" aria-label="Время вечерней сводки"></div></div>
+    <div class="fr"><span class="lb">Сразу сообщать</span><div class="form" style="gap:10px">${[['Нужно решение по участию',1],['Нужно одобрение подачи или цены',1],['До срока меньше 24 часов',1],['Итог торгов',1],['Ответ подрядчика',0],['Робот остановился с ошибкой',1]].map(e=>`<label class="sw"><input type="checkbox" ${e[1]?'checked':''}><i></i>${e[0]}</label>`).join('')}</div></div>
+    <div class="fr"><span class="lb">Кому</span><div class="tagset">${PEOPLE.slice(0,3).map(p=>`<span class="tag">${p}</span>`).join('')}<button class="tag add">+</button></div></div>
+    <div class="fr"><span class="lb">Не беспокоить</span><div class="inline"><span class="muted">с</span><input class="inp num" value="22:00" style="max-width:90px" aria-label="Не беспокоить с"><span class="muted">до</span><input class="inp num" value="08:00" style="max-width:90px" aria-label="Не беспокоить до"><span class="small muted">кроме сроков меньше 3 часов</span></div></div>
+  </div><div class="row"><button class="btn pri" data-toast="Уведомления сохранены">Сохранить</button><button class="btn" data-toast="Тестовая сводка отправлена в Telegram">Прислать тестовую сводку</button></div>`;
+  if(tab==='channels')b=`<div class="box list">${[['TG','Telegram-бот','@ProTender_Paritet_bot · сводки, решения, переписка с подрядчиками','ok','Подключён'],['@','Почта','tender@paritet.example · письма подрядчикам и заказчикам','ok','Подключена'],['WA','WhatsApp','Переписка с подрядчиками','','Подключить'],['GD','Google Диск','Папка «ProTender — Паритет» · документы, прошлые тендеры, фото с объектов','ok','Подключён'],['ТП','Тендерплан','Источник закупок · обновление каждый час','ok','Подключён'],['СБ','СБИС','Акты, счета, электронный документооборот','','Подключить'],['₽','Банк','Через удалённый компьютер · интернет-банк','acc','Через компьютер']].map(c=>`<div class="conn"><div class="lg">${c[0]}</div><div class="tx"><b>${c[1]}</b><span class="small muted">${c[2]}</span></div>${c[3]?`<span class="pill ${c[3]}">${c[4]}</span>`:`<button class="btn sm pri">${c[4]}</button>`}</div>`).join('')}</div>`;
+  if(tab==='ai')b=`<div class="box co"><div class="co-h"><h3>Claude Pro</h3><span class="pill ok">Активна</span></div>
+    <div><div class="row" style="justify-content:space-between"><span>Использовано в текущем окне</span><b class="num">62%</b></div><div class="bar" style="height:8px"><i style="width:62%"></i></div><div class="small muted" style="margin-top:6px">Сброс через 2 ч 14 мин · за неделю — 71%</div></div>
+    <div class="co-grid num"><div><span>Аналитик</span>31%</div><div><span>Руководитель тендера</span>14%</div><div><span>Остальные роботы</span>26%</div></div>
+    <div class="row"><button class="btn pri">Перейти на Max</button><button class="btn">История расхода</button></div></div>
+    <div class="box form"><div class="fr"><label for="ai-low">Когда лимит меньше 15%</label><select class="sel" id="ai-low"><option>Только срочные по срокам задачи</option><option>Поставить всё на паузу</option><option>Продолжать</option></select></div></div>`;
+  if(tab==='security')b=`<div class="box form">
+    <div class="fr"><span class="lb">Вход по коду с телефона</span><label class="sw"><input type="checkbox" checked disabled><i></i>Обязателен для всех</label></div>
+    <div class="fr"><span class="lb">Компьютер с ЭЦП</span><div><div>Европа · дата-центр · диск зашифрован</div><div class="small muted">Запасной токен — у директора</div></div></div>
+    <div class="fr"><span class="lb">Запасной канал связи</span><div><span class="pill ok">Готов</span> <span class="small muted">Санкт-Петербург · 89.108.77.20</span></div></div>
+  </div>
+  <div class="sec-h"><h2>Журнал входов</h2></div>
+  <div class="box list">${[['сегодня 13:58','Руслан Т.','Панель · Москва'],['сегодня 13:40','Мария К.','Компьютер с ЭЦП · 12 мин'],['вчера 19:12','Андрей С.','Панель · Тамбов'],['вчера 08:01','Неизвестный','Неверный код · заблокировано']].map(l=>`<div class="hist" style="grid-template-columns:130px minmax(0,1fr)"><span class="when num">${l[0]}</span><span>${l[1]} · <span class="muted">${l[2]}</span></span></div>`).join('')}</div>
+  <div class="box co" style="border-color:var(--danger)"><div class="co-h"><h3>Отзыв доступа</h3></div><div class="row"><button class="btn danger" data-stop="1">Остановить всех роботов</button><button class="btn danger">Отключить компьютер от площадок</button><button class="btn danger">Выйти на всех устройствах</button></div></div>`;
+  return `<div class="subnav">${PTABS.map(([k,l])=>`<a href="#prefs-${k}" class="${tab===k?'on':''}">${l}</a>`).join('')}</div>${b}`;
+}
+
+/* ---------- router ---------- */
+const TITLES={today:'Сегодня, 5 ноября',decisions:'Решения',tenders:'Тендеры',contracts:'Исполнение',contractors:'Подрядчики',computer:'Компьютер',robots:'Роботы'};
+function route(){
+  let h=(location.hash||'#today').slice(1);
+  let html='',title='',nav=h;
+  if(h.startsWith('tender-')){const t=T.find(x=>x.id===h.slice(7));html=vTender(h.slice(7));title=`<a class="crumb" href="#tenders">Тендеры</a> <span class="faint">/</span> ${t?t.title.split(' — ')[0].slice(0,60):''}`;nav='tenders'}
+  else if(h.startsWith('robot-')){html=vRobot(h.slice(6));title='<a class="crumb" href="#robots">Роботы</a>';nav='robots'}
+  else if(h.startsWith('prefs-')){const k=h.slice(6);html=vPrefs(PTABS.some(p=>p[0]===k)?k:'companies');title='Настройки';nav='prefs-companies'}
+  else{const v={today:vToday,decisions:vDecisions,tenders:vTenders,contracts:vContracts,contractors:vContractors,computer:vComputer,robots:vRobots}[h]||vToday;html=v();title=TITLES[h]||TITLES.today;nav=TITLES[h]?h:'today'}
+  $('#view').innerHTML=html;$('#title').innerHTML=title;renderNav(nav);
+  $('#app').classList.remove('open');
+  if(h==='computer')moveCursor();
+}
+let curT;
+function moveCursor(){clearInterval(curT);const pts=[[62,78],[48,49],[44,57],[30,93],[62,78]];let i=0;curT=setInterval(()=>{const c=$('#cursor');if(!c){clearInterval(curT);return}i=(i+1)%pts.length;c.style.left=pts[i][0]+'%';c.style.top=pts[i][1]+'%'},1800)}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400)}
+function stopModal(){
+  $('#modal').innerHTML=`<div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><h3 id="mt">Остановить всех роботов?</h3><p>Роботы прекратят работу на площадках и в переписке.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Отмена</button><button class="btn" style="background:var(--danger);border-color:var(--danger);color:#fff" data-confirm-stop>Остановить</button></div></div></div>`;
+}
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');
+  if(a){const d=D.find(x=>x.id===a.dataset.act);const i=+a.dataset.i;
+    if(d&&d.acts[i]==='Открыть'){location.hash='tender-'+d.tid;return}
+    if(d&&(i===0||d.acts[i]==='Не участвуем'||d.acts[i]==='Отклонить')){const el=a.closest('.dec');el.classList.add('gone');
+      const msg={Участвуем:'Решение принято: участвуем','Не участвуем':'Решение принято: не участвуем','Одобрить подачу':'Подача одобрена','Утвердить':'Нижняя граница утверждена','Выбрать':'Подрядчик выбран','Принять правку':'Правка принята · проверяется на прошлых тендерах','Отклонить':'Правка отклонена'}[d.acts[i]]||'Готово';
+      if(d.type==='Участие'){const t=T.find(x=>x.id===d.tid);if(t)t.stage=d.acts[i]==='Участвуем'?'prep':'declined'}
+      setTimeout(()=>{D=D.filter(x=>x.id!==d.id);route();toast(msg)},250)} else if(d&&d.tid){location.hash='tender-'+d.tid}
+    return}
+  const go=e.target.closest('[data-go]'); if(go){location.hash=go.dataset.go;return}
+  const tf=e.target.closest('[data-tf]'); if(tf){tFilter=tf.dataset.tf;route();return}
+  const tt=e.target.closest('[data-tt]'); if(tt){tTab=tt.dataset.tt;route();return}
+  const dt=e.target.closest('[data-dt]'); if(dt){document.querySelectorAll('#dchips .chip').forEach(c=>c.classList.toggle('on',c===dt));const v=dt.dataset.dt;$('#dlist').innerHTML=D.filter(d=>v==='Все'||d.type===v).map(decCard).join('')||'<div class="dec"><span class="muted">Нет решений</span></div>';return}
+  const part=e.target.closest('[data-part]'); if(part){const t=T.find(x=>x.id===part.dataset.part);const yes=part.dataset.v==='1';t.stage=yes?'prep':'declined';D=D.filter(d=>!(d.tid===t.id&&d.type==='Участие'));route();toast(yes?'Участвуем · Составитель заявки начал работу':'Не участвуем · причина сохранена');return}
+  const ts=e.target.closest('[data-toast]'); if(ts){toast(ts.dataset.toast);return}
+  if(e.target.closest('#stopBtn')||e.target.closest('[data-stop]')){stopModal();return}
+  if(e.target.closest('[data-close]')||e.target.id==='mbg'){$('#modal').innerHTML='';return}
+  if(e.target.closest('[data-confirm-stop]')){$('#modal').innerHTML='';R.forEach(r=>r.on=false);route();toast('Все роботы остановлены');return}
+  if(e.target.closest('#menuBtn')){$('#app').classList.add('open');return}
+  if(e.target.closest('#scrim')){$('#app').classList.remove('open');return}
+  if(e.target.closest('#companyBtn')){toast('Компании: ООО «Паритет»');return}
+});
+document.addEventListener('change',e=>{if(e.target.id==='rob-on'){const r=R.find(x=>'robot-'+x.id===location.hash.slice(1));if(r){r.on=e.target.checked;route();toast(r.on?r.n+' включён':r.n+' выключен')}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#modal').innerHTML='';$('#app').classList.remove('open')}});
+window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#tender-'))tTab='req';route();window.scrollTo(0,0)});
+route();
+</script>
+
+</html>
